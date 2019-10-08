@@ -147,37 +147,44 @@
             <el-button size="mini">清除</el-button>
             <el-button @click="getQuestionsList()" type="primary" size="mini">搜索</el-button>
           </el-col>
-        </el-row>
-        <!-- 基础题库列表展示 -->
+        </el-row>   
       </el-card>
+      <!-- 基础题库列表展示 -->
       <el-card style="margin-top:15px">
-      <el-table :data="questionsList" border>
-        <el-table-column label="序号" type="index" align="center"></el-table-column>
-        <el-table-column label="试题编号" prop="number" align="center"></el-table-column>
-        <el-table-column label="学科" prop="subject" align="center"></el-table-column>
-        <el-table-column label="题型" prop="questionType" :formatter="questionTypeFMT" align="center"></el-table-column>
-        <el-table-column label="题干" prop="question" align="center"></el-table-column>
-        <el-table-column label="录入时间" prop="addDate" align="center">
-          <!-- 作用域插槽方式获得需要的列的信息 -->
-          <span slot-scope="stData">{{stData.row.addDate | parseTimeByString}}</span>
-        </el-table-column>
-        <el-table-column label="难度" prop="difficulty" :formatter="difficultyFMT" align="center"></el-table-column>
+        <el-table :data="questionsList" border>
+          <el-table-column label="序号" type="index" align="center"></el-table-column>
+          <el-table-column label="试题编号" prop="number" align="center"></el-table-column>
+          <el-table-column label="学科" prop="subject" align="center"></el-table-column>
+          <el-table-column
+            label="题型"
+            prop="questionType"
+            :formatter="questionTypeFMT"
+            align="center"
+          ></el-table-column>
+          <el-table-column label="题干" prop="question" align="center"></el-table-column>
+          <el-table-column label="录入时间" prop="addDate" align="center">
+            <!-- 作用域插槽方式获得需要的列的信息 -->
+            <span slot-scope="stData">{{stData.row.addDate | parseTimeByString}}</span>
+          </el-table-column>
+          <el-table-column label="难度" prop="difficulty" :formatter="difficultyFMT" align="center"></el-table-column>
 
-        <el-table-column label="录入人" prop="creator" align="center"></el-table-column>
-        <el-table-column label="操作" width="200" align="center">
-          <!-- 因为当前内容区域有多个html标签需要使用记录信息，所以在外部通过template统一设置slot-scope -->
-          <template slot-scope="stData">
-            <a href="#" style="color:#4ba4fb">预览</a>
-            <a href="#" style="color:#4ba4fb">修改</a>
-            <!-- prevent:阻止浏览器默认动作
+          <el-table-column label="录入人" prop="creator" align="center"></el-table-column>
+          <el-table-column label="操作" width="200" align="center">
+            <!-- 因为当前内容区域有多个html标签需要使用记录信息，所以在外部通过template统一设置slot-scope -->
+            <template slot-scope="stData">
+              <a href="#" style="color:#4ba4fb">预览</a>
+              <a href="#" style="color:#4ba4fb">修改</a>
+              <!-- prevent:阻止浏览器默认动作
                  a有默认动作、form有默认动作
-            要阻止a标签的默认跳转动作 -->
-            <a href="#" @click.prevent="del(stData.row)" style="color:#4ba4fb">删除</a>
-            <a href="#" style="color:#4ba4fb">加入精选</a>        
-          </template>
-        </el-table-column>
-      </el-table>
+              要阻止a标签的默认跳转动作-->
+              <a href="#" @click.prevent="del(stData.row)" style="color:#4ba4fb">删除</a>
+              <a href="#" style="color:#4ba4fb">加入精选</a>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-card>
+      <!-- 分页 -->
+
     </div>
   </div>
 </template>
@@ -192,16 +199,16 @@ import { provinces, citys } from '@/api/hmmm/citys' // 城市、区县
 import { list, remove } from '@/api/hmmm/questions' // 基础题库
 // as给导入的成员设置别名
 import {
-  difficulty as difficultyList, 
+  difficulty as difficultyList,
   questionType as questionTypeList,
   direction as directionList
-  } 
-  from '@/api/hmmm/constants' // 常量数据
+} from '@/api/hmmm/constants' // 常量数据
 
 export default {
   name: 'QuestionsList',
   data() {
     return {
+     
       // 定义各个搜索表单域的数据展示成员
       subjectIDList: [],
       difficultyList, // 简易成员赋值(difficultyList:difficultyList)
@@ -245,19 +252,19 @@ export default {
 
   methods: {
     // // 实现题库删除
-    // del(info) {
-    //   // 确认框提示
-    //   this.$confirm('确认要删除该题库么?', '删除', {
-    //       confirmButtonText: '确定',
-    //       cancelButtonText: '取消',
-    //       type: 'warning'
-    //     }).then(() => {
-    //       // 删除动作
-    //       remove(info)
-    //       // 刷新数据
-    //       this.getQuestionsList()
-    //     }).catch(() => {})
-    // },
+    del(info) {
+      // 确认框提示
+      this.$confirm('确认要删除该题库么?', '删除', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 删除动作
+          remove(info)
+          // 刷新数据
+          this.getQuestionsList()
+        }).catch(() => {})
+    },
 
     // 针对 试题类型 做信息转换
     // row:代表一行记录信息
@@ -309,10 +316,11 @@ export default {
       // console.log(rst)
       // 把获得好的题库数据列表 赋予给questionsList
       this.questionsList = rst.data.items
+      
     }
+    
   }
 }
 </script>
 <style scoped>
-
 </style>
