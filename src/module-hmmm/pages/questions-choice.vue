@@ -102,14 +102,14 @@
               </el-col>
               <!-- 企业简称 -->
               <el-col :span='5'>
-                <el-form-item v-model="searchForm.shortName" label='企业简称'>
-                  <el-input style='width:150px' placeholder="请输入"></el-input>
+                <el-form-item label='企业简称'>
+                  <el-input v-model="searchForm.shortName" style='width:150px' placeholder="请输入"></el-input>
                 </el-form-item>
               </el-col>
               <!-- 方向 -->
               <el-col :span='5'>
                 <el-form-item label='方向'>
-                  <el-select v-model="searchForm.direction" style='width:140px' placeholder="请输入">
+                  <el-select v-model="searchForm.direction" style='width:140px' placeholder="请输入" clearable>
                     <el-option v-for="item in directionList" :key="item"
                     :value="item" :label="item"></el-option>
                   </el-select>
@@ -124,26 +124,32 @@
                 <el-tab-pane label="已审核"></el-tab-pane>
               </el-tabs>
               <!-- 表格数据 -->
-              <el-table border :header-cell-style="{
+              <el-table border :data="choiceList" :cell-style='cellStyle' :header-cell-style="{
                 'background-color': 'rgb(248, 248, 248)','color': '#555','height':'60px',
-                'font-weight':'400'
+                'font-weight':'400', 'text-align':'center'
               }">
-                <el-table-column label='序号' width='50px' class="table"></el-table-column>
-                <el-table-column label='试题编号' width='90px'></el-table-column>
-                <el-table-column label='学科' width='80px'></el-table-column>
-                <el-table-column label='题型' width='80px'></el-table-column>
-                <el-table-column label='题干' width='150px'></el-table-column>
-                <el-table-column label='录入时间' width='150px'></el-table-column>
-                <el-table-column label='录入人'></el-table-column>
-                <el-table-column label='难度' width='60px'></el-table-column>
-                <el-table-column label='使用次数'></el-table-column>
-                <el-table-column label='审核状态'></el-table-column>
-                <el-table-column label='审核意见'></el-table-column>
-                <el-table-column label='审核人'></el-table-column>
+                <el-table-column label='序号' width='50px' type="index" ></el-table-column>
+                <el-table-column label='试题编号' width='90px' prop="number"></el-table-column>
+                <el-table-column label='学科' width='70px' prop="subjectID"
+                :formatter="subjectFMT"></el-table-column>
+                <el-table-column label='题型' width='60px' prop="questionType"
+                :formatter="questionTypeFMT"></el-table-column>
+                <el-table-column label='题干' width='150px' prop="question"></el-table-column>
+                <el-table-column label='录入时间' width='160px'>
+                  <span slot-scope="stData">{{stData.row.addDate | parseTimeByString}}</span>
+                </el-table-column>
+                <el-table-column label='录入人' width='110px' prop="creator"></el-table-column>
+                <el-table-column label='难度' width='60px' prop="difficulty"
+                :formatter="difficultyFMT"></el-table-column>
+                <el-table-column label='使用次数' width='80px' prop="index"></el-table-column>
+                <el-table-column label='审核状态' width='80px' prop="chkState"
+                :formatter="chkStateFMT"></el-table-column>
+                <el-table-column label='审核意见' width='80px' prop="chkRemarks"></el-table-column>
+                <el-table-column label='审核人' prop="chkUser"></el-table-column>
               </el-table>
             </template>
             <!-- 分页按钮 -->
-            <el-pagination type='primary' style="text-align:center" background
+            <el-pagination type='primary' style="text-align:center;margin-top:20px" background 
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page.sync="currentPage3"
@@ -164,6 +170,7 @@ import {simple as tags} from '@/api/hmmm/tags' // 标签
 import {simple as user} from '@/api/base/users' // 录入人
 import {simple as directorys} from '@/api/hmmm/directorys'// 目录
 import {provinces, citys} from '@/api/hmmm/citys'// 城市
+import {choice} from '@/api/hmmm/questions'// 精选题库列表
 // 常量
 import {status as statusList,
         difficulty as difficultyList,
@@ -185,6 +192,7 @@ export default {
       directorysList: [], // 二级目录
       provincesList: [], // 省份
       citysList: [], // 城区
+      choiceList: [], // 精选题库列表
       // 搜索表单
       searchForm: {
         subjectID: '', // 学科
@@ -234,6 +242,42 @@ export default {
       this.searchForm.city = '' // 清除之前选取好的城市
       var res = await citys(pname)
       this.citysList = res
+    },
+    // 精选题库列表
+    async getChoiceList() {
+      var res = await choice()
+      this.choiceList = res.data.items
+    },
+    // 表格第一列样式
+    cellStyle({row, column, rowIndex, columnIndex}) {
+      if (columnIndex === 0) {
+        // 指定列号
+        return 'color:#108ee9;text-align:center'
+      } else {
+        return 'text-align:center'
+      }
+    },
+    // 格式化学科
+    subjectFMT(row, column, cellValue, index) {
+      return this.subjectIDList[15 - cellValue]['label']
+    },
+    // 格式化题型
+    questionTypeFMT(row, column, cellValue) {
+      return this.questionTypeList[cellValue - 1]['label']
+    },
+    // 格式化难度
+    difficultyFMT(row, column, cellValue) {
+      return this.difficultyList[cellValue - 1]['label']
+    },
+    // 格式化审核状态
+    chkStateFMT(row, column, cellValue) {
+      if (cellValue === 0) {
+        return '待审核'
+      } else if (cellValue === 1) {
+        return '通过'
+      } else if (cellValue === 2) {
+        return '拒绝'
+      } 
     }
   },
   created() {
@@ -249,6 +293,8 @@ export default {
     this.getProvincesList()
     // 城区
     this.getCitysList()
+    // 精选题库
+    this.getChoiceList()
   }
 }
 </script>
@@ -258,11 +304,5 @@ export default {
   background-color: #eee;
   color: #333;
   margin-bottom: 10px
-}
-.table{
-  background-color: #ccc;
-  height: 100px;
-  color:#000
-  
 }
 </style>
