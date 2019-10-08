@@ -11,7 +11,7 @@
               <!-- 学科 -->
               <el-col :span='5'>
                 <el-form-item label='学科'>
-                  <el-select v-model="searchForm.subjectID" style='width:180px' clearable>
+                  <el-select v-model="searchForm.subjectID" style='width:180px' clearable @change="getChoiceList">
                     <el-option v-for="item in subjectIDList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -20,7 +20,7 @@
               <!-- 状态 -->
               <el-col :span='5'>
                 <el-form-item label='状态'>
-                  <el-select v-model="searchForm.chkState" style='width:180px' clearable>
+                  <el-select v-model="searchForm.status" style='width:180px' clearable @change="getChoiceList">
                     <el-option v-for="item in statusList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -29,7 +29,7 @@
               <!-- 难度 -->
               <el-col :span='4'>
                 <el-form-item label='难度'>
-                  <el-select  v-model="searchForm.difficulty" style='width:135px' clearable>
+                  <el-select  v-model="searchForm.difficulty" style='width:135px' clearable @change="getChoiceList">
                     <el-option v-for="item in difficultyList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -38,7 +38,7 @@
               <!-- 试题类型 -->
               <el-col :span='5'>
                 <el-form-item  label='试题类型'>
-                  <el-select v-model="searchForm.questionType" style='width:150px' clearable>
+                  <el-select v-model="searchForm.questionType" style='width:150px' clearable @change="getChoiceList">
                     <el-option v-for="item in questionTypeList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -47,7 +47,7 @@
               <!-- 标签 -->
               <el-col :span='5'>
                 <el-form-item  label='标签'>
-                  <el-select v-model="searchForm.tags" style='width:140px' placeholder="请输入" clearable>
+                  <el-select v-model="searchForm.tags" style='width:140px' placeholder="请输入" clearable @change="getChoiceList">
                     <el-option v-for="item in tagsList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -56,7 +56,7 @@
               <!-- 录入人 -->
               <el-col :span='4'>
                 <el-form-item label='录入人'>
-                  <el-select v-model="searchForm.creatorID" style='width:120px' placeholder="请输入" clearable>
+                  <el-select v-model="searchForm.creatorID" style='width:120px' placeholder="请输入" clearable @change="getChoiceList">
                     <el-option v-for="item in userList" :key="item.id"
                     :value="item.id" :label="item.username"></el-option>
                   </el-select>
@@ -65,13 +65,16 @@
               <!-- 关键字 -->
               <el-col :span='6'>
                 <el-form-item label='关键字'>
-                  <el-input v-model="searchForm.keyword" style='width:210px' placeholder="请输入题目编号/题干"></el-input>
+                  <el-input v-model="searchForm.keyword" style='width:210px' placeholder="请输入题目编号/题干" @change="getChoiceList">
+                  </el-input>
                 </el-form-item>
               </el-col>
               <!-- 题目备注 -->
               <el-col :span='4'>
                 <el-form-item label='题目备注'>
-                  <el-input v-model="searchForm.remarks" style='width:110px' placeholder="请输入"></el-input>
+                  <el-input v-model="searchForm.remarks" style='width:110px' placeholder="请输入" @change="getChoiceList">
+
+                  </el-input>
                 </el-form-item>
               </el-col>
               <!-- 城市 -->
@@ -85,7 +88,7 @@
               </el-col>
               <el-col :span='5'>
                 <el-form-item >
-                  <el-select v-model="searchForm.city" style='width:180px' clearable>
+                  <el-select v-model="searchForm.city" style='width:180px' clearable @change="getChoiceList">
                     <el-option v-for="item in citysList" :key="item"
                       :value="item" :label="item"></el-option>
                   </el-select>
@@ -94,7 +97,7 @@
               <!-- 二级目录 -->
               <el-col :span='5'>
                 <el-form-item label='二级目录'>
-                  <el-select v-model="searchForm.catalogID" style='width:150px' placeholder="请输入二级目录" clearable>
+                  <el-select v-model="searchForm.catalogID" style='width:150px' placeholder="请输入二级目录" clearable @change="getChoiceList">
                     <el-option v-for="item in directorysList" :key="item.value"
                     :value="item.value" :label="item.label"></el-option>
                   </el-select>
@@ -103,13 +106,13 @@
               <!-- 企业简称 -->
               <el-col :span='5'>
                 <el-form-item label='企业简称'>
-                  <el-input v-model="searchForm.shortName" style='width:150px' placeholder="请输入"></el-input>
+                  <el-input v-model="searchForm.shortName" style='width:150px' placeholder="请输入" @change="getChoiceList"></el-input>
                 </el-form-item>
               </el-col>
               <!-- 方向 -->
               <el-col :span='5'>
                 <el-form-item label='方向'>
-                  <el-select v-model="searchForm.direction" style='width:140px' placeholder="请输入" clearable>
+                  <el-select v-model="searchForm.direction" style='width:140px' placeholder="请输入" @change="getChoiceList" clearable>
                     <el-option v-for="item in directionList" :key="item"
                     :value="item" :label="item"></el-option>
                   </el-select>
@@ -118,10 +121,10 @@
             </el-row>
             <!-- 标签选择 -->
             <template>
-              <el-tabs type="card">
-                <el-tab-pane label="全部" ></el-tab-pane>
-                <el-tab-pane label="待审核"></el-tab-pane>
-                <el-tab-pane label="已审核"></el-tab-pane>
+              <el-tabs type="card" v-model="activeName">
+                <el-tab-pane label="全部" name="3"></el-tab-pane>
+                <el-tab-pane label="待审核" name="0"></el-tab-pane>
+                <el-tab-pane label="已审核" name="1"></el-tab-pane>
               </el-tabs>
               <!-- 表格数据 -->
               <el-table border :data="choiceList" :cell-style='cellStyle' :header-cell-style="{
@@ -150,12 +153,9 @@
             </template>
             <!-- 分页按钮 -->
             <el-pagination type='primary' style="text-align:center;margin-top:20px" background 
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page.sync="currentPage3"
-              :page-size="100"
-              layout="prev, pager, next, jumper"
-              :total="1000">
+              :page-count="pageList.total" :current-page='pageList.page_current' :page-size='pageList.sizes'
+              @current-change='changeCurrent'
+              layout="prev, pager, next, jumper">
             </el-pagination>
         </el-form>
       </el-card>
@@ -182,6 +182,14 @@ export default {
   name: 'QuestionsChoice',
   data() {
     return {
+      // 分页
+      pageList: {
+        total: 0,
+        page_current: 1,
+        sizes: 10
+      },
+      // 切换状态栏
+      activeName: '3',
       subjectIDList: [], // 学科列表
       statusList, // 状态
       difficultyList, // 难度
@@ -194,7 +202,9 @@ export default {
       citysList: [], // 城区
       choiceList: [], // 精选题库列表
       // 搜索表单
-      searchForm: {
+      searchForm: {   
+        page: '1', // 当前页数
+        status: '', // 状态
         subjectID: '', // 学科
         difficulty: '', // 难度
         questionType: '', // 试题类型
@@ -207,7 +217,7 @@ export default {
         direction: '', // 方向
         creatorID: '', // 录入人
         catalogID: '', // 目录
-        chkState: '' // 审核状态
+        chkState: '3' // 审核状态
       }
     }
   },
@@ -245,8 +255,10 @@ export default {
     },
     // 精选题库列表
     async getChoiceList() {
-      var res = await choice()
+      var res = await choice(this.searchForm)
       this.choiceList = res.data.items
+      this.pageList.total = res.data.pages
+      this.pageList.sizes = res.data.pagesize
     },
     // 表格第一列样式
     cellStyle({row, column, rowIndex, columnIndex}) {
@@ -278,6 +290,11 @@ export default {
       } else if (cellValue === 2) {
         return '拒绝'
       } 
+    },
+    // 分页按钮
+    changeCurrent(newpage) {
+      this.searchForm.page = newpage
+      this.getChoiceList(this.searchForm)
     }
   },
   created() {
@@ -295,6 +312,12 @@ export default {
     this.getCitysList()
     // 精选题库
     this.getChoiceList()
+  },
+  // 事件监听
+  watch: {
+    'activeName': function(val) {
+      this.searchForm.chkState = val
+    }
   }
 }
 </script>
