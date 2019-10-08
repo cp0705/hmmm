@@ -3,7 +3,7 @@
     <div class="app-container">
       <el-card>
         <!-- 新增，导入行 -->
-        <el-row style="margin-bottom:10px">
+        <el-row style="margin-bottom:15px">
           <el-button type="primary">新增试题</el-button>
           <el-button type="primary">批量导入</el-button>
         </el-row>
@@ -11,7 +11,7 @@
         <el-row :gutter="5" style="margin-bottom:10px">
           <el-col :span="4">
             学科：
-            <el-select v-model="searchForm.subjectID" clearable>
+            <el-select v-model="searchForm.subjectID" style="width:200px" clearable>
               <el-option
                 v-for="item in subjectIDList"
                 :key="item.value"
@@ -22,7 +22,7 @@
           </el-col>
           <el-col :span="4">
             难度：
-            <el-select v-model="searchForm.difficulty" clearable>
+            <el-select v-model="searchForm.difficulty" style="width:200px" clearable>
               <el-option
                 v-for="item in difficultyList"
                 :key="item.value"
@@ -145,70 +145,85 @@
         <el-row>
           <el-col :span="6" style="margin-left:1450px">
             <el-button size="mini">清除</el-button>
-            <el-button type="primary" size="mini">搜索</el-button>
+            <el-button @click="getQuestionsList()" type="primary" size="mini">搜索</el-button>
           </el-col>
         </el-row>
+        <!-- 基础题库列表展示 -->
       </el-card>
-      <!-- table表格 -->
       <el-card style="margin-top:15px">
-        <el-table :data="questionsList" stripe style="width: 100%">
-          <el-table-column type="index" label="序号" width="180"></el-table-column>
-          <el-table-column prop="number" label="试题编号" width="180"></el-table-column>
-          <el-table-column prop="subjectID" label="学科"></el-table-column>
-          <el-table-column prop="questionType" label="题型"></el-table-column>
-          <el-table-column prop="question" label="题干"></el-table-column>
-          <el-table-column label="录入时间"></el-table-column>
-          <el-table-column prop="difficulty" label="难度"></el-table-column>
-          <el-table-column prop="creator" label="录入人"></el-table-column>
-          <el-table-column label="操作"></el-table-column>
-        </el-table>
+      <el-table :data="questionsList" border>
+        <el-table-column label="序号" type="index" align="center"></el-table-column>
+        <el-table-column label="试题编号" prop="number" align="center"></el-table-column>
+        <el-table-column label="学科" prop="subject" align="center"></el-table-column>
+        <el-table-column label="题型" prop="questionType" :formatter="questionTypeFMT" align="center"></el-table-column>
+        <el-table-column label="题干" prop="question" align="center"></el-table-column>
+        <el-table-column label="录入时间" prop="addDate" align="center">
+          <!-- 作用域插槽方式获得需要的列的信息 -->
+          <span slot-scope="stData">{{stData.row.addDate | parseTimeByString}}</span>
+        </el-table-column>
+        <el-table-column label="难度" prop="difficulty" :formatter="difficultyFMT" align="center"></el-table-column>
+
+        <el-table-column label="录入人" prop="creator" align="center"></el-table-column>
+        <el-table-column label="操作" width="200" align="center">
+          <!-- 因为当前内容区域有多个html标签需要使用记录信息，所以在外部通过template统一设置slot-scope -->
+          <template slot-scope="stData">
+            <a href="#" style="color:#4ba4fb">预览</a>
+            <a href="#" style="color:#4ba4fb">修改</a>
+            <!-- prevent:阻止浏览器默认动作
+                 a有默认动作、form有默认动作
+            要阻止a标签的默认跳转动作 -->
+            <a href="#" @click.prevent="del(stData.row)" style="color:#4ba4fb">删除</a>
+            <a href="#" style="color:#4ba4fb">加入精选</a>        
+          </template>
+        </el-table-column>
+      </el-table>
       </el-card>
     </div>
   </div>
 </template>
 
 <script>
-// 3.把api数据接口相关方法导入进来,导入进来想要调用它，通过方法调用 学科
-import { simple } from '@/api/hmmm/subjects'
-// 难度的相关方法导入(常量)  as给导入的成员设置别名，这样省略了方法中设置以及钩子函数的设置
-// 试题类型的相关方法的导入（常量）
-// 方向目录的相关方法导入
+// 把api数据接口相关方法导入进来
+import { simple } from '@/api/hmmm/subjects' // 学科
+import { simple as tagsSimple } from '@/api/hmmm/tags' // 标签
+import { simple as usersSimple } from '@/api/base/users' // 录入人
+import { simple as directorysSimple } from '@/api/hmmm/directorys' // 二级目录
+import { provinces, citys } from '@/api/hmmm/citys' // 城市、区县
+import { list, remove } from '@/api/hmmm/questions' // 基础题库
+// as给导入的成员设置别名
 import {
-  difficulty as difficultyList,
+  difficulty as difficultyList, 
   questionType as questionTypeList,
   direction as directionList
-} from '@/api/hmmm/constants'
-// 标签页的相关方法导入（常量）
-import { simple as tagsList } from '@/api/hmmm/tags'
-// 录入人的相关方法导入（常量）
-import { simple as creatorIDList } from '@/api/base/users'
-// 二级目录的相关方法导入
-import { simple as catalogIDList } from '@/api/hmmm/directorys'
-// 城市
-import { provinces, citys } from '@/api/hmmm/citys'
-// 基础题库列表数据
-import {list} from '@/api/hmmm/questions'
+  } 
+  from '@/api/hmmm/constants' // 常量数据
+
 export default {
   name: 'QuestionsList',
   data() {
     return {
-      // 2. 定义各个搜索表单域的数据展示成员
+      // 定义各个搜索表单域的数据展示成员
       subjectIDList: [],
-      difficultyList, // 简易成员赋值 难度
-      questionTypeList, // 试题类型
-      tagsList: [], // 标签
-      cityList: [],
-      directionList, // 方向
+      difficultyList, // 简易成员赋值(difficultyList:difficultyList)
+      questionTypeList,
+      directionList,
+      tagsList: [], // 标签列表
       creatorIDList: [], // 录入人
       catalogIDList: [], // 二级目录
-      // 1. 定义搜索数据对象
+      cityList: [], // 区县
+      questionsList: [], // 基础题库
+
+      // 定义搜索数据对象
       searchForm: {
         subjectID: '', // 学科
         difficulty: '', // 难度
         questionType: '', // 试题类型
         tags: '', // 标签
-        province: '',
-        city: '',
+        province: '', // 省份
+        city: '', // 城市
+        keyword: '', // 关键字
+        remarks: '', // 备注
+        shortname: '', // 企业简称
         direction: '', // 方向
         creatorID: '', // 录入人
         catalogID: '' // 二级目录
@@ -216,55 +231,88 @@ export default {
     }
   },
   created() {
-    // 5.刷新页面就显示
+    // 学科
     this.getSubjectIDList()
+    // 标签
     this.getTagsList()
+    // 录入人
     this.getCreatorIDList()
+    // 二级目录
     this.getCatalogIDList()
     // 基础题库
     this.getQuestionsList()
   },
+
   methods: {
-    // 4.获得学科下拉列表数据  学科
+    // // 实现题库删除
+    // del(info) {
+    //   // 确认框提示
+    //   this.$confirm('确认要删除该题库么?', '删除', {
+    //       confirmButtonText: '确定',
+    //       cancelButtonText: '取消',
+    //       type: 'warning'
+    //     }).then(() => {
+    //       // 删除动作
+    //       remove(info)
+    //       // 刷新数据
+    //       this.getQuestionsList()
+    //     }).catch(() => {})
+    // },
+
+    // 针对 试题类型 做信息转换
+    // row:代表一行记录信息
+    // column: 代表列的信息
+    // cellValue: 当前正要处理的域的信息
+    questionTypeFMT(row, column, cellValue) {
+      // console.log(cellValue)
+      return this.questionTypeList[cellValue - 1]['label']
+    },
+    // 针对 难度 做信息转换
+    difficultyFMT(row, column, cellValue) {
+      return this.difficultyList[cellValue - 1]['label']
+    },
+    // 获得 学科 下拉列表数据
     async getSubjectIDList() {
       var rst = await simple()
-      // 6.把获得到的学科信息赋予给subjectIDList成员
+      // console.log(rst)
+      // 把获得到的学科信息赋予给 subjectIDList 成员
       this.subjectIDList = rst.data
     },
-    // 标签
+    // 获得 标签 列表信息
     async getTagsList() {
-      var res = await tagsList()
-      this.tagsList = res.data
+      var rst = await tagsSimple()
+      this.tagsList = rst.data
     },
-    // 录入人
+    // 录入人 列表
     async getCreatorIDList() {
-      var rst = await creatorIDList()
+      var rst = await usersSimple()
       this.creatorIDList = rst.data
     },
-    // 二级目录
+    // 二级目录 列表
     async getCatalogIDList() {
-      var rst = await catalogIDList()
+      var rst = await directorysSimple()
       this.catalogIDList = rst.data
     },
-    // 城市
+    // 城市，方法简易成员赋值(provinces:provinces)
     provinces,
-    // 获得城市信息
-    // getCitys方法在模板中声明的时候，没有设置()
-    // 这个pname形参就代表被选中的省份信息
+    // 根据 城市 获得 区县
+    // pname:代表当前选中的"城市"信息
     getCitys(pname) {
-      this.searchForm.city = '' // 清除之前选取好的城市
+      // console.log(pname)
+      this.searchForm.city = '' // 清除之前选择的区县
+      // 根据pname把对应的区间信息获得到
       this.cityList = citys(pname)
     },
-    // 基础题库 获取列表
+    // 基础题库 列表
     async getQuestionsList() {
       var rst = await list(this.searchForm)
-      // confirm.log(rst) 
-      // 把获取好的题库数据列表，赋予给questionsList
+      // console.log(rst)
+      // 把获得好的题库数据列表 赋予给questionsList
       this.questionsList = rst.data.items
     }
   }
 }
 </script>
-
 <style scoped>
+
 </style>
