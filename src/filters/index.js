@@ -53,7 +53,7 @@ export function parseTime(time, cFormat) {
   })
   return timeStr
 }
-
+// 日期过滤器
 export function parseTimeByString(time, cFormat) {
   if (arguments.length === 0) {
     return null
