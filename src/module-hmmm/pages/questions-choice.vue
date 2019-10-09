@@ -3,7 +3,7 @@
     <div class="app-container">
       <el-card shadow="never">
         <!-- 按钮 -->
-        <el-button class="button">新增试题</el-button>
+        <el-button class="button" @click="questionsAdd">新增试题</el-button>
         <el-button class="button">批量导入</el-button>
         <!-- 搜索栏目 -->
         <el-form v-model="searchForm">
@@ -222,6 +222,10 @@ export default {
     }
   },
   methods: {
+    // 跳转到新增试题页面
+    questionsAdd() {
+      this.$router.push('new')
+    },
     // 获取学科列表
     async getSubjectIDList() {
       var res = await simple()
