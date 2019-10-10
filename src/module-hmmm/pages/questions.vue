@@ -290,7 +290,7 @@ span.key {
   padding: 0 5px;
   font-size: 12px;
 }
-.el-row, .el-table {
+.el-row,.el-table {
   margin-top: 10px;
 }
 </style>
