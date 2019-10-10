@@ -1,14 +1,28 @@
 <template>
   <div class="dashboard-container">
-    <div class="app-container">目录添加</div>
+    <div class="app-container">
+      
+    </div>
   </div>
 </template>
 
 <script>
+// import { add, list } from '@/api/hmmm/directorys'
+
 export default {
   name: 'DirectorysAdd',
   data() {
-    return {}
+    return {
+      
+    }
+  },
+  methods: {
+    
+    async getList() {
+      let result = await list()
+      this.lists = result.data.items
+    }
+    
   }
 }
 </script>
