@@ -274,7 +274,7 @@ export default {
       }
     },
     // 格式化学科
-    subjectFMT(row, column, cellValue, index) {
+    subjectFMT(row, column, cellValue) {
       return this.subjectIDList[15 - cellValue]['label']
     },
     // 格式化题型
