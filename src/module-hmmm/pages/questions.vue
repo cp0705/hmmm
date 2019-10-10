@@ -4,7 +4,7 @@
       <el-card>
         <!-- 新增，导入行 -->
         <el-row style="margin-bottom:15px">
-          <el-button type="primary">新增试题</el-button>
+          <el-button type="primary" @click="$router.push('new')">新增试题</el-button>
           <el-button type="primary">批量导入</el-button>
         </el-row>
         <!--第一个行 学科  -->
@@ -166,6 +166,7 @@
             <!-- 作用域插槽方式获得需要的列的信息 -->
             <span slot-scope="stData">{{stData.row.addDate | parseTimeByString}}</span>
           </el-table-column>
+          <!-- formatter用来格式化内容 -->
           <el-table-column label="难度" prop="difficulty" :formatter="difficultyFMT" align="center"></el-table-column>
 
           <el-table-column label="录入人" prop="creator" align="center"></el-table-column>
@@ -183,8 +184,7 @@
           </el-table-column>
         </el-table>
       </el-card>
-      <!-- 分页 -->
-
+      
     </div>
   </div>
 </template>
@@ -208,7 +208,6 @@ export default {
   name: 'QuestionsList',
   data() {
     return {
-     
       // 定义各个搜索表单域的数据展示成员
       subjectIDList: [],
       difficultyList, // 简易成员赋值(difficultyList:difficultyList)
@@ -251,7 +250,7 @@ export default {
   },
 
   methods: {
-    // // 实现题库删除
+    // 实现题库删除
     del(info) {
       // 确认框提示
       this.$confirm('确认要删除该题库么?', '删除', {
@@ -315,10 +314,8 @@ export default {
       var rst = await list(this.searchForm)
       // console.log(rst)
       // 把获得好的题库数据列表 赋予给questionsList
-      this.questionsList = rst.data.items
-      
-    }
-    
+      this.questionsList = rst.data.items 
+    }  
   }
 }
 </script>
