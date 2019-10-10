@@ -1,3 +1,4 @@
+/* eslint-disable vue/no-parsing-error */
 /* eslint-disable eqeqeq */
 <template>
   <div class="dashboard-container">
@@ -72,8 +73,8 @@
           <el-table-column prop="tags" label="标签" width="100"></el-table-column>
           <el-table-column prop="totals" label="题目数量" width="100"></el-table-column>
           <el-table-column label="操作" min-width="100">
-            <el-button style="font-size:12px" type="text">学科分类</el-button>
-            <el-button style="font-size:12px" type="text">学科标签</el-button>
+            <el-button style="font-size:12px" @click="$router.push('/subjects/directorys')" type="text">学科分类</el-button>
+            <el-button style="font-size:12px"@click="$router.push('/subjects/tags')" type="text">学科标签</el-button>
             <el-button style="font-size:12px" type="text">修改</el-button>
             <el-button style="font-size:12px" type="text">删除</el-button>
           </el-table-column>
@@ -89,6 +90,7 @@
           ></el-pagination>
         </el-row>
       </el-card>
+     
     </div>
   </div>
 </template>
@@ -101,6 +103,7 @@ export default {
   name: 'SubjectsList',
   data() {
     return {
+      dialogVisible: false,
       openOrclose: false,
       ruleForm: {
         subjectName: '',
@@ -143,7 +146,7 @@ export default {
     },
     Display(value) {
     switch (value) {
-      case 1:
+      case 1:  
         return '显示'
       case 2:
         return '隐藏'
