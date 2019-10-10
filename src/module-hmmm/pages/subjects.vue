@@ -1,5 +1,3 @@
-/* eslint-disable vue/no-parsing-error */
-/* eslint-disable eqeqeq */
 <template>
   <div class="dashboard-container">
     <div class="app-container">
@@ -74,7 +72,7 @@
           <el-table-column prop="totals" label="题目数量" width="100"></el-table-column>
           <el-table-column label="操作" min-width="100">
             <el-button style="font-size:12px" @click="$router.push('/subjects/directorys')" type="text">学科分类</el-button>
-            <el-button style="font-size:12px"@click="$router.push('/subjects/tags')" type="text">学科标签</el-button>
+            <el-button style="font-size:12px" @click="$router.push('/subjects/tags')" type="text">学科标签</el-button>
             <el-button style="font-size:12px" type="text">修改</el-button>
             <el-button style="font-size:12px" type="text">删除</el-button>
           </el-table-column>
