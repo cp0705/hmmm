@@ -4,8 +4,8 @@
       <el-card>
         <!-- 新增，导入行 -->
         <el-row style="margin-bottom:15px">
-          <el-button type="primary" @click="$router.push('new')">新增试题</el-button>
-          <el-button type="primary">批量导入</el-button>
+          <el-button type="primary" @click="$router.push('new')">{{ $t('question.xinzeng') }}</el-button>
+          <el-button type="primary">{{ $t('question.pidao') }}</el-button>
         </el-row>
         <!--第一个行 学科  -->
         <el-row :gutter="5" style="margin-bottom:10px">
@@ -183,8 +183,18 @@
             </template>
           </el-table-column>
         </el-table>
+        <!-- 分页 -->
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="searchForm.page"
+          :page-sizes="[4, 10, 15, 20]"
+          :page-size="searchForm.pagesize"
+          layout="sizes, prev, pager, next, jumper"
+          :total="searchForm.tot" 
+          style="margin-top:25px;text-align:center">
+        </el-pagination>
       </el-card>
-      
     </div>
   </div>
 </template>
@@ -221,6 +231,10 @@ export default {
 
       // 定义搜索数据对象
       searchForm: {
+          // 分页
+        page: 1, // 默认获取第1页数据
+        pagesize: 4, // 默认每页获得4条数据
+        tot: 0, // 数据总条数
         subjectID: '', // 学科
         difficulty: '', // 难度
         questionType: '', // 试题类型
@@ -250,6 +264,19 @@ export default {
   },
 
   methods: {
+        // 每页条数变化的处理
+    handleSizeChange(val) {
+      this.searchForm.pagesize = val
+      this.getQuestionsList()
+    },
+    // 当前页码变化的回调处理
+    handleCurrentChange(val) {
+      this.searchForm.page = val
+      this.getQuestionsList()
+    },
+    // searchForm.page：当前页码
+    // searchForm.pagesize：每页显示条数
+    // searchForm.tot：总记录条数
     // 实现题库删除
     del(info) {
       // 确认框提示
@@ -315,6 +342,8 @@ export default {
       // console.log(rst)
       // 把获得好的题库数据列表 赋予给questionsList
       this.questionsList = rst.data.items 
+      // 获得数据总条数并赋予给searchForm.tot成员
+      this.tot = rst.data.counts
     }  
   }
 }
